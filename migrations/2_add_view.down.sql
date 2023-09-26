@@ -1,0 +1,1 @@
+DROP VIEW public.orders_view;
