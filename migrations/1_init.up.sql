@@ -14,7 +14,7 @@ CREATE TABLE public.orders (
 );
 
 CREATE TABLE public.deliveries (
-	delivery_id int4 NOT NULL,
+	delivery_id SERIAL PRIMARY KEY,
 	"name" varchar NOT NULL,
 	phone varchar NULL,
 	zip varchar NULL,
@@ -22,7 +22,6 @@ CREATE TABLE public.deliveries (
 	address varchar NULL,
 	region varchar NULL,
 	email varchar(255) NULL,
-	CONSTRAINT deliveries_pk PRIMARY KEY (delivery_id)
 );
 
 CREATE TABLE public.payments (
@@ -40,6 +39,7 @@ CREATE TABLE public.payments (
 );
 
 CREATE TABLE public.items (
+	item_id int4 SERIAL PRIMARY KEY,
 	chrt_id int4 NOT NULL,
 	track_number varchar NOT NULL,
 	price int4 NOT NULL,
@@ -51,7 +51,6 @@ CREATE TABLE public.items (
 	nm_id int4 NOT NULL,
 	brand varchar NULL,
 	status int4 NOT NULL,
-	item_id int4 NOT NULL,
 	CONSTRAINT items_pk PRIMARY KEY (item_id)
 );
 
