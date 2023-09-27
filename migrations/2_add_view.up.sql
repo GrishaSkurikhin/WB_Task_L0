@@ -25,9 +25,18 @@ AS SELECT ord.order_uid,
     pay.delivery_cost AS payment_delivery_cost,
     pay.goods_total AS payment_goods_total,
     pay.custom_fee AS payment_custom_fee,
-    array_agg(i.*) AS items
+    i.chrt_id AS item_chrt_id, 
+    i.track_number AS item_track_number, 
+    i.price AS item_price, 
+    i.rid AS item_rid, 
+    i."name" AS item_name, 
+    i.sale AS item_sale, 
+    i."size" AS item_size, 
+    i.total_price AS item_total_price, 
+    i.nm_id AS item_nm_id,
+    i.brand AS item_brand,
+    i.status AS item_status
    FROM orders ord
-     JOIN deliveries del ON ord.delivery_id = del.delivery_id
-     JOIN payments pay ON ord.order_uid = pay.transaction
-     JOIN items i ON ord.track_number::text = i.track_number::text
-  GROUP BY ord.order_uid, ord.track_number, ord.entry, ord.locale, ord.internal_signature, ord.customer_id, ord.delivery_service, ord.sm_id, ord.date_created, del.name, del.phone, del.zip, del.city, del.address, del.region, del.email, pay.transaction, pay.request_id, pay.currency, pay.provider, pay.amount, pay.payment_dt, pay.bank, pay.delivery_cost, pay.goods_total, pay.custom_fee;-
+     LEFT JOIN deliveries del ON ord.delivery_id = del.delivery_id
+     LEFT JOIN payments pay ON ord.order_uid = pay.transaction
+     LEFT JOIN items i ON ord.track_number::text = i.track_number::text
