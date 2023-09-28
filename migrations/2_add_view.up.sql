@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW public.orders_view
+CREATE OR REPLACE VIEW orders_view
 AS SELECT ord.order_uid,
     ord.track_number,
     ord.entry,
@@ -20,7 +20,7 @@ AS SELECT ord.order_uid,
     pay.currency AS payment_currency,
     pay.provider AS payment_provider,
     pay.amount AS payment_amount,
-    pay.payment_dt AS payment_payment_dt,
+    pay.payment_dt AS payment_dt,
     pay.bank AS payment_bank,
     pay.delivery_cost AS payment_delivery_cost,
     pay.goods_total AS payment_goods_total,
