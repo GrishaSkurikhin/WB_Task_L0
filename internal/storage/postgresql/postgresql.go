@@ -77,7 +77,7 @@ func (s *shopStorage) GetOrder(orderUID uuid.UUID) (models.Order, error) {
 		return models.Order{}, fmt.Errorf("%s: execute statement: %w", op, err)
 	}
 	if len(rows) == 0 {
-		return models.Order{}, fmt.Errorf("%s: cant find order with this uid", op)
+		return models.Order{}, fmt.Errorf("%s: cant find order with specified uid", op)
 	}
 
 	orders, err := rowsToOrders(rows)
