@@ -11,6 +11,12 @@ type MapCache struct {
 	m map[uuid.UUID]models.Order
 }
 
+func New() *MapCache {
+	return &MapCache{
+		m: make(map[uuid.UUID]models.Order),
+	}
+}
+
 func (mc *MapCache) AddOrder(order models.Order) error {
 	const op = "mapcache.AddOrder"
 

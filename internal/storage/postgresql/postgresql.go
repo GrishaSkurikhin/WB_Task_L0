@@ -18,12 +18,12 @@ const (
 	itemsTable      = "items"
 )
 
-type shopStorage struct {
+type OrderStorage struct {
 	*sqlx.DB
 }
 
-func New(host, port, user, password, name string) (*shopStorage, error) {
-	const op = "shopStorage.postgresql.New"
+func New(host, port, user, password, name string) (*OrderStorage, error) {
+	const op = "storage.postgresql.New"
 
 	dataSource := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, name)
@@ -36,11 +36,15 @@ func New(host, port, user, password, name string) (*shopStorage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: ping failed: %w", op, err)
 	}
-	return &shopStorage{conn}, nil
+	return &OrderStorage{conn}, nil
 }
 
-func (s *shopStorage) GetAllOrders() ([]models.Order, error) {
-	const op = "shopStorage.postgresql.GetAllOrders"
+func (s *OrderStorage) Close() {
+	s.Close()
+}
+
+func (s *OrderStorage) GetAllOrders() ([]models.Order, error) {
+	const op = "storage.postgresql.GetAllOrders"
 
 	stmt, err := s.Preparex(fmt.Sprintf("SELECT * FROM %s", ordersView))
 	if err != nil {
@@ -62,8 +66,8 @@ func (s *shopStorage) GetAllOrders() ([]models.Order, error) {
 	return orders, nil
 }
 
-func (s *shopStorage) AddOrder(order models.Order) error {
-	const op = "shopStorage.postgresql.AddOrder"
+func (s *OrderStorage) AddOrder(order models.Order) error {
+	const op = "storage.postgresql.AddOrder"
 
 	tx, err := s.Begin()
 	if err != nil {
