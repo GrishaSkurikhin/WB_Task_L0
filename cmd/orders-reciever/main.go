@@ -135,17 +135,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	order, err := postgres.GetOrder(order1UUID)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(order)
-
-	order, err = postgres.GetOrder(order2UUID)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(order)
 
 	orders, err := postgres.GetAllOrders()
 	if err != nil {

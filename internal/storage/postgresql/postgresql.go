@@ -62,32 +62,6 @@ func (s *shopStorage) GetAllOrders() ([]models.Order, error) {
 	return orders, nil
 }
 
-func (s *shopStorage) GetOrder(orderUID uuid.UUID) (models.Order, error) {
-	const op = "shopStorage.postgresql.GetOrder"
-
-	stmt, err := s.Preparex(fmt.Sprintf("SELECT * FROM %s WHERE order_uid = $1", ordersView))
-	if err != nil {
-		return models.Order{}, fmt.Errorf("%s: prepare statement: %w", op, err)
-	}
-	defer stmt.Close()
-
-	rows := []viewRowStruct{}
-	err = stmt.Select(&rows, orderUID)
-	if err != nil {
-		return models.Order{}, fmt.Errorf("%s: execute statement: %w", op, err)
-	}
-	if len(rows) == 0 {
-		return models.Order{}, fmt.Errorf("%s: cant find order with specified uid", op)
-	}
-
-	orders, err := rowsToOrders(rows)
-	if err != nil {
-		return models.Order{}, fmt.Errorf("%s: scan statement: %w", op, err)
-	}
-	
-	return orders[0], nil
-}
-
 func (s *shopStorage) AddOrder(order models.Order) error {
 	const op = "shopStorage.postgresql.AddOrder"
 
