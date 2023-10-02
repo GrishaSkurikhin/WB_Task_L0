@@ -3,14 +3,14 @@ package getorder
 import (
 	"net/http"
 
+	customerrors "github.com/GrishaSkurikhin/WB_Task_L0/internal/custom-errors"
 	resp "github.com/GrishaSkurikhin/WB_Task_L0/internal/lib/api/response"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/lib/logger/sl"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/models"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/orders"
-	"github.com/go-chi/render"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	"golang.org/x/exp/slog"
-	"github.com/google/uuid"
 )
 
 type Response struct {
@@ -27,18 +27,20 @@ func New(log *slog.Logger, cache orders.CacheGetter) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		strOrderUUID := r.URL.Query().Get("order_uid")
-		orderUUID, err := uuid.Parse(strOrderUUID)
-		if err != nil {
-			log.Error("invalid order uid", sl.Err(err))
-			render.JSON(w, r, resp.Error("invalid order uid"))
-			return
-		}
-
+		orderUUID := r.URL.Query().Get("order_uid")
 		order, err := orders.Get(orderUUID, cache)
 		if err != nil {
-			log.Error("failed to get order", sl.Err(err))
-			render.JSON(w, r, resp.Error("internal error"))
+			switch specificErr := err.(type) {
+			case customerrors.OrderNotFound:
+				log.Error("failed to get order", sl.Err(specificErr))
+				render.JSON(w, r, resp.Error("order not found"))
+			case customerrors.WrongID:
+				log.Error("failed to get order", sl.Err(specificErr))
+				render.JSON(w, r, resp.Error("wrong order id"))
+			default:
+				log.Error("failed to get order", sl.Err(specificErr))
+				render.JSON(w, r, resp.Error("internal error"))
+			}
 			return
 		}
 

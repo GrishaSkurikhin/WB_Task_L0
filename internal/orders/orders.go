@@ -3,6 +3,7 @@ package orders
 import (
 	"fmt"
 
+	customerrors "github.com/GrishaSkurikhin/WB_Task_L0/internal/custom-errors"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/models"
 	"github.com/google/uuid"
 )
@@ -22,7 +23,7 @@ func Add(order models.Order, cache CacheAdder, strg StorageAdder) error {
 
 	err := cache.AddOrder(order)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return err
 	}
 
 	err = strg.AddOrder(order)
@@ -37,12 +38,17 @@ type CacheGetter interface {
 	GetOrdersID() []string
 }
 
-func Get(orderUUID uuid.UUID, cache CacheGetter) (models.Order, error) {
+func Get(strOrderUUID string, cache CacheGetter) (models.Order, error) {
 	const op = "orders.Get"
+
+	orderUUID, err := uuid.Parse(strOrderUUID)
+	if err != nil {
+		return models.Order{}, customerrors.WrongID{Msg: err.Error()}
+	}
 
 	order, err := cache.GetOrder(orderUUID)
 	if err != nil {
-		return models.Order{}, fmt.Errorf("%s: %w", op, err)
+		return models.Order{}, err
 	}
 	return order, nil
 }

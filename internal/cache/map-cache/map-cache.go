@@ -1,8 +1,7 @@
 package mapcache
 
 import (
-	"fmt"
-
+	customerrors "github.com/GrishaSkurikhin/WB_Task_L0/internal/custom-errors"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/models"
 	"github.com/google/uuid"
 )
@@ -18,10 +17,8 @@ func New() *MapCache {
 }
 
 func (mc *MapCache) AddOrder(order models.Order) error {
-	const op = "mapcache.AddOrder"
-
 	if _, isExist := mc.m[order.OrderUID.String()]; isExist {
-		return fmt.Errorf("%s: %s", op, "order is already in cache")
+		return customerrors.OrderAlreadyExist{}
 	} else {
 		mc.m[order.OrderUID.String()] = order
 		return nil
@@ -29,12 +26,10 @@ func (mc *MapCache) AddOrder(order models.Order) error {
 }
 
 func (mc *MapCache) GetOrder(orderUUID uuid.UUID) (models.Order, error) {
-	const op = "mapcache.GetOrder"
-
 	if order, isExist := mc.m[orderUUID.String()]; isExist {
 		return order, nil
 	} else {
-		return models.Order{}, fmt.Errorf("%s: %s", op, "cant find order with specified uid")
+		return models.Order{}, customerrors.OrderNotFound{}
 	}
 }
 

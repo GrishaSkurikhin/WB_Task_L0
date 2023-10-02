@@ -39,7 +39,7 @@ func (n *nats) Disconnect(ctx context.Context) error {
 func (n *nats) SubscribeOrderChannel(log *slog.Logger, cache orders.CacheAdder, storage orders.StorageAdder, subject string) error {
 	const op = "broker.nats.SubscribeChannel"
 
-	_, err := n.Subscribe(subject, addFromChannel(log, cache, storage), 
+	_, err := n.Subscribe(subject, addFromChannel(log, cache, storage),
 		stan.StartWithLastReceived(), stan.SetManualAckMode())
 
 	if err != nil {
