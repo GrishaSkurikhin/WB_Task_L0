@@ -37,3 +37,11 @@ func (mc *MapCache) GetOrder(orderUUID uuid.UUID) (models.Order, error) {
 		return models.Order{}, fmt.Errorf("%s: %s", op, "cant find order with specified uid")
 	}
 }
+
+func (mc *MapCache) GetOrdersID() []string {
+	ordersID := make([]string, 0, len(mc.m))
+	for id := range mc.m {
+		ordersID = append(ordersID, id)
+	}
+	return ordersID
+}

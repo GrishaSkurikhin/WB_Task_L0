@@ -8,6 +8,7 @@ import (
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/config"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/orders"
 	getorder "github.com/GrishaSkurikhin/WB_Task_L0/internal/rest-server/handlers/get-order"
+	getordersid "github.com/GrishaSkurikhin/WB_Task_L0/internal/rest-server/handlers/get-orders-id"
 	mwLogger "github.com/GrishaSkurikhin/WB_Task_L0/internal/rest-server/middleware/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -31,6 +32,7 @@ func New(cfg *config.Config, log *slog.Logger, cache orders.CacheGetter) (*restS
 
 	router.Route("/order", func(r chi.Router) {
 		r.Get("/get", getorder.New(log, cache))
+		r.Get("/ids", getordersid.New(log, cache))
 	})
 
 	srv := &http.Server{
