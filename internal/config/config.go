@@ -12,6 +12,7 @@ type Config struct {
 	Env        string     `yaml:"env"`
 	RestServer restServer `yaml:"rest_server"`
 	Storage    postgres   `yaml:"postgres"`
+	Nats       nats       `yaml:"nats-streaming"`
 }
 
 type restServer struct {
@@ -26,6 +27,13 @@ type postgres struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	DBName   string `yaml:"dbname"`
+}
+
+type nats struct {
+	Host            string `yaml:"host"`
+	Port            string `yaml:"port"`
+	Cluster         string `yaml:"cluster"`
+	SubjectOrderAdd string `yaml:"subject_order_add"`
 }
 
 func MustLoad() *Config {

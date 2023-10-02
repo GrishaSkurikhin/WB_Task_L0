@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -39,8 +40,14 @@ func New(host, port, user, password, name string) (*OrderStorage, error) {
 	return &OrderStorage{conn}, nil
 }
 
-func (s *OrderStorage) Close() {
-	s.Close()
+func (s *OrderStorage) Disconnect(ctx context.Context) error {
+	const op = "storage.postgresql.Disconnect"
+
+	err := s.Close()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }
 
 func (s *OrderStorage) GetAllOrders() ([]models.Order, error) {
@@ -196,7 +203,7 @@ func rowsToOrders(rows []viewRowStruct) ([]models.Order, error) {
 					GoodsTotal:   row.PaymentGoodsTotal,
 					CustomFee:    row.PaymentCustomFee,
 				},
-				Items: []models.Item {},
+				Items:             []models.Item{},
 				Locale:            row.Locale,
 				InternalSignature: row.InternalSignature,
 				CustomerID:        row.CustomerID,
@@ -224,7 +231,7 @@ func rowsToOrders(rows []viewRowStruct) ([]models.Order, error) {
 	orders := make([]models.Order, len(pointersOrders))
 	for i, ptr := range pointersOrders {
 		orders[i] = *ptr
-    }
+	}
 	return orders, nil
 }
 

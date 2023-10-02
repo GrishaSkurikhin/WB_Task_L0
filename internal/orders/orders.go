@@ -38,7 +38,7 @@ type CacheGetter interface {
 
 func Get(orderUUID uuid.UUID, cache CacheGetter) (models.Order, error) {
 	const op = "orders.Get"
-
+	
 	order, err := cache.GetOrder(orderUUID)
 	if err != nil {
 		return models.Order{}, fmt.Errorf("%s: %w", op, err)

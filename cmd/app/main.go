@@ -7,10 +7,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/GrishaSkurikhin/WB_Task_L0/internal/broker/nats"
+	orderCache "github.com/GrishaSkurikhin/WB_Task_L0/internal/cache/map-cache"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/config"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/lib/logger/sl"
 	"github.com/GrishaSkurikhin/WB_Task_L0/internal/lib/logger/slogpretty"
+	"github.com/GrishaSkurikhin/WB_Task_L0/internal/orders"
 	restserver "github.com/GrishaSkurikhin/WB_Task_L0/internal/rest-server"
+	orderStorage "github.com/GrishaSkurikhin/WB_Task_L0/internal/storage/postgresql"
+	"github.com/GrishaSkurikhin/WB_Task_L0/pkg/closer"
 	"golang.org/x/exp/slog"
 )
 
@@ -18,6 +23,9 @@ const (
 	envLocal = "local"
 	envDev   = "dev"
 	envProd  = "prod"
+
+	natsClientID    = "1"
+	shutdownTimeout = 5 * time.Second
 )
 
 func main() {
@@ -31,14 +39,55 @@ func main() {
 	)
 	log.Debug("debug messages are enabled")
 
-	srv, err := restserver.New(cfg, log)
+	// connect to postgresql
+	storage, err := orderStorage.New(cfg.Storage.Host, cfg.Storage.Port, cfg.Storage.User, cfg.Storage.Password, cfg.Storage.DBName)
+	if err != nil {
+		log.Error("failed to connect to postgresql", sl.Err(err))
+		return
+	}
+	log.Info("successful connect to postgresql")
+
+	// create cache
+	cache := orderCache.New()
+	log.Info("successful create cache")
+
+	// add orders to cache
+	err = orders.AddAllToCache(cache, storage)
+	if err != nil {
+		log.Error("failed to add orders to cache", sl.Err(err))
+		return
+	}
+	log.Info("all orders have been added to the cache")
+
+	// create nats client
+	natsClient, err := nats.New(cfg.Nats.Host, cfg.Nats.Port, cfg.Nats.Cluster, natsClientID)
+	if err != nil {
+		log.Error("failed to create nats client", sl.Err(err))
+		return
+	}
+
+	// subscribe on channel
+	err = natsClient.SubscribeOrderChannel(log, cache, storage, cfg.Nats.SubjectOrderAdd)
+	if err != nil {
+		log.Error("failed to subscribe nats channel", sl.Err(err))
+		return
+	}
+
+	// create server
+	srv, err := restserver.New(cfg, log, cache)
 	if err != nil {
 		log.Error("failed to create server", sl.Err(err))
+		return
 	}
 	log.Info("starting server", slog.String("address", cfg.RestServer.Address))
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	c := &closer.Closer{}
+	c.Add(srv.Close)
+	c.Add(natsClient.Disconnect)
+	c.Add(storage.Disconnect)
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
 	go func() {
 		if err := srv.Start(); err != nil {
@@ -48,15 +97,14 @@ func main() {
 
 	log.Info("server started")
 
-	<-done
+	<-ctx.Done()
 	log.Info("stopping server")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	if err := srv.Close(&ctx); err != nil {
-		log.Error("failed to stop server", sl.Err(err))
-		return
+	if err := c.Close(shutdownCtx); err != nil {
+		log.Error("closer error", sl.Err(err))
 	}
 
 	log.Info("server stopped")

@@ -1,11 +1,42 @@
 version: '3'
 services:
-  db:
+  server:
+    build: ./
+    ports:
+      - 8080:8080
+    environment:
+      CONFIG_PATH: "config/local.yaml"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      nats-streaming:
+        condition: service_started
+
+  postgresql:
     image: postgres
     ports:
-      - "5436:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: wb_user
       POSTGRES_PASSWORD: 3636
       POSTGRES_DB: wildberries
-  
+    healthcheck:
+      test: pg_isready -U wb_user -d wildberries
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path=/migrations/", "-database=postgresql://wb_user:3636@postgresql:5432/wildberries?sslmode=disable", "up"]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  nats-streaming:
+    image: nats-streaming
+    command: ["-cid", "cluster1"]
+    ports:
+      - "4222:4222"
