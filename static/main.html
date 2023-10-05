@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Данные по заказам</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/static/script.js" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="btn-group">
+            <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Номер заказа</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="orderDropdown" id="orderDropdownMenu">
+            </ul>
+        </div>
+        
+        <h1 class="mt-3" id="orderIdHeader">Заказ № </h1>
+        <h5 id="orderDate"></h5>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h2>Доставка</h2>
+                <p><strong>Сервис доставки: </strong> <span id="deliveryService"></span></p>
+                <p><strong>Имя получателя: </strong> <span id="recipientName"></span></p>
+                <p><strong>Телефон: </strong> <span id="recipientPhone"></span></p>
+                <p><strong>Адрес: </strong> <span id="recipientAddress"></span></p>
+                <p><strong>Email: </strong> <span id="recipientEmail"></span></p>
+            </div>
+            <div class="col-md-6">
+                <h2>Оплата</h2>
+                <p><strong>Банк:</strong> <span id="paymentBank"></span></p>
+                <p><strong>Поставщик платежных услуг: </strong> <span id="paymentProvider"></span></p>
+                <p><strong>Товары: </strong> <span id="goodsTotal"></span></p>
+                <p><strong>Доставка: </strong> <span id="deliveryCost"></span></p>
+                <p><strong>Таможенная плата: </strong> <span id="customFee"></span></p>
+                <p><strong>Всего: </strong> <span id="totalAmount"></span></p>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col">
+                <h2>Товары</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Цена</th>
+                            <th>Скидка</th>
+                            <th>Размер</th>
+                            <th>Бренд</th>
+                            <th>Итоговая цена</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderedItems">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
