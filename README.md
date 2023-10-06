@@ -21,11 +21,15 @@ docker-compose up
 Сервис будет доступен по адресу localhost:8080.
 
 ## Интерфейс сервиса
+![interface](https://github.com/GrishaSkurikhin/WB_Task_L0/assets/71190776/37932d18-5709-4f16-ad0c-e1090124a9d7)
 
 ## Архитектура проекта
+![backend-arch](https://github.com/GrishaSkurikhin/WB_Task_L0/assets/71190776/abf74083-2e41-4253-b372-78b233d87dbf)
 
 ## Архитектура сервиса
+![service-arch](https://github.com/GrishaSkurikhin/WB_Task_L0/assets/71190776/9eda5c28-576c-4035-87be-edfc5dbfe978)
 
 ## Структура БД
+![bd-arch](https://github.com/GrishaSkurikhin/WB_Task_L0/assets/71190776/de8f636a-63fb-4692-9601-32383b609b14)
 
-База данных при запуске восстанвливается путем миграций.
+База данных при запуске восстанавливается путем миграций.
